@@ -1,0 +1,68 @@
+_Percent_Val = 
+AVERAGE(updated_file[energy_%])
+
+_Track = COUNT(updated_file[track_name])
+
+Average_Streams_per_year = 
+CALCULATE(
+    AVERAGE(updated_file[streams]),
+    ALLEXCEPT(updated_file,'Calendar'[Year]))
+
+
+
+Image_html = 
+Var X = 
+CALCULATE(
+    MAX(updated_file[image_url]),
+    updated_file[streams] = MAX(updated_file[streams])
+)
+RETURN
+
+"
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<title>Image Cropping</title>
+<style>
+.image-container {
+width: 320px; /* Width of the container */
+height: 180px; /* Height of the container */
+overflow: hidden; /* Hide parts of the image that don't fit */
+border-radius: 12px; /* Rounded corners */
+position: relative; /* Relative positioning for the child element */
+}
+
+.image {
+object-fit: cover; /* Cover the entire container */
+object-position: center; /* Center the image */
+width: 100%; /* Full width */
+height: 100%; /* Full height */
+}
+</style>
+</head>
+<body>
+<div class='image-container'>
+<img src='"&x&"' alt='Album Cover' class='image'>
+</div>
+</body>
+</html>
+"
+
+
+Max_Streams = MAX(updated_file[streams])
+
+Top_song_vs_Avg = 
+VAR X = [Top_Song_vs_Avg_val] RETURN
+IF(X > 0,
+FORMAT(X, "#.0%") & " " & UNICHAR(9650),
+ FORMAT(X, "#.0%") & " " & UNICHAR(9660))
+
+Top_Song_vs_Avg_val = 
+DIVIDE([Top_Songs_Streams]-[Average_Streams_per_year],[Average_Streams_per_year])
+
+Top_Songs_Streams = 
+CALCULATE(
+    SUM(updated_file[streams]),
+    updated_file[streams]=MAX(updated_file[streams]))
+
